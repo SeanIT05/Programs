@@ -8,67 +8,57 @@ int main(){
     //2d array mit malloc (ram management in C)
     int (*image)[width] = malloc(sizeof(int[height][width]));
 
-    //adjust how big the fractal will appear, the smaller the value the larger it will be
+    //Größe des Fraktals
     float fractalScalar = .0007;
 
-    /*
-     * The two dimensional array 'image' is treated such that the
-     * x axis is the real numberline and the y axis is the complex
-     * numberline, to produce the fractal the center of the 'image'
-     * must be treated as (0,0), to achive this the 'image' array is
-     * traversed starting at -1/2 of the x or y and ending at +1/2 x or y
+    /* Das zweidimensionale Array 'image' wird so behandelt, dass die x-Achse 
+     * der reelle Zahlenstrahl und die y-Achse der komplexe, 
+     * um das Fraktal als Mittelpunkt des "Bildes" zu erzeugen muss als (0,0) 
+     * behandelt werden, um dies zu erreichen, ist das 'image'-Array durchlaufen von -1/2 x oder y bis +1/2 x oder y
      */
     for(int x = -halfWidth; x < halfWidth; x++){
         for(int y = -halfHeight; y < halfHeight; y++){
 
-            //a & b are set to x and y respecitvely as they represet a complex# a + bi
+            //A & B werden auf x bzw. y gesetzt, da sie einen Komplexe Zahl darstellen  --> a + bi
             float a = (float)x*fractalScalar;
             float b = (float)y*fractalScalar; //cast x & y to floats
 
             int count = 0;
             /*
-             * iteresting things happen when you adjust 'totalIterations' totalIterations
-             * deteremines how confident we are that a+b will not go to - or + infinity, it almost
-             * acts as 'resolution'
+             * Hier werden die insgesamten Wiederholungen gegeben
+             * Interessante Dinge passieren, wenn man diese ändert
              */
             int totalIterations = 50;
             while(count < totalIterations){
                 //(a+bi)^2 = (a^2 - b^2) + 2abi
-                float realTerm = a*a - b*b; //real component
-                float complexTerm = 2 * a * b; //complex component 'coeffiecnt'
+                float realTerm = a*a - b*b; //Realteil
+                float complexTerm = 2 * a * b; //Komplexer Komponent
 
-                //add the original values and iterate the process
+                //Originalwerte hinzufügen und es wiederholen
                 a = realTerm + (float)x*fractalScalar;
                 b = complexTerm + (float)y*fractalScalar;
-
-                //check for unbounded cases where a+b become - or + infinite
-                //the mandelbrot values always lay between -2 & 2
-                if(a+b > 2.0 || a+b < -2.0 ){ //alternatively real term + complex term
+                
+                //nach Fällen suchen, in denen A+B - oder + unendlich werden
+                //Mandelbrotwerte liegen immer zwischen -2 & 2
+                if(a+b > 2.0 || a+b < -2.0 ){
                     break;
                 }
                 count++;
             }
-
-            //in the case that a+b did not become - or + infinite change pixel color
+            
             if(count == totalIterations){
                 image[y+halfHeight][x+halfWidth] = 200;
             }
         }
     }
 
-    /*
-     * Write to the image file:
-     * file pointer 'pgmimg' opens "mandelbrot.pgm" for "writing"
-     * print "P2" to the file via the 'pgmimg' file pointer to
-       denote it is a portable graymap image file
-     * via the same process print the width and height
-     * then denote the max grey value '255'
-     */
+    //Erstellt eine PGM Datei in welcher es als eine Greymap mit einem maximalem
+    //"grezvalue" von 255 dargestellt wird
     FILE* pgmimg = fopen("mandelbrot.pgm", "w");
     fprintf(pgmimg, "P2\n");
     fprintf(pgmimg, "%d %d\n", width, height);
     fprintf(pgmimg, "255\n");
-    //now traverse the image array and write the int values to .pgm file
+    //Durchläuft das Image-Array und schreibt die INT-Werte in die PGM-Datei
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int temp = image[i][j];
@@ -79,4 +69,5 @@ int main(){
     fclose(pgmimg); //schließt die pgm Datei
     free(image); //leert die bilder array
 }
+
 
